@@ -1,0 +1,173 @@
+
+#  WhatsApp Customer Service Bot 
+
+This bot is an automated customer service system that runs on WhatsApp using `whatsapp-web.js`, and responds to customer inquiries with the help of Gemini AI (Google Generative AI).
+
+>  **Important Note**: This bot **does NOT use the official WhatsApp API**. Use a new or secondary WhatsApp number to avoid potential bans by Meta. *Warung ABC* is used only as a **case study**. Please customize the FAQ dataset and prompts according to your own business needs. Chat history is not stored in any database, and the bot runs locally.
+
+---
+
+##  Dependencies
+
+Install the following dependencies in your project:
+
+```bash
+npm install whatsapp-web.js qrcode-terminal dotenv @google/generative-ai
+```
+
+---
+
+##  Gemini API Key
+
+To use the Gemini AI feature in this bot, you need to obtain an API Key from Google. Follow these steps:
+
+1. Visit Google AI Studio
+2. Log in with your Google Account
+3. Enable API Access
+4. Go to the "API Keys" menu
+5. Create a new API Key
+6. Save the API Key in the `.env` file
+
+---
+
+##  Environment Configuration (.env)
+
+Create a `.env` file in the root folder and add the following variables:
+
+```env
+GEMINI_API_KEY=your_google_gemini_api_key
+WHATSAPP_SESSION_NAME=my-wa-session
+```
+
+---
+
+##  Installation & Running the Bot
+
+### 1. Clone or Download the Repository
+
+```bash
+git clone https://github.com/bimosrtno/experimental-whatsapp-ai-bot
+cd BE
+```
+
+### 2. Install Dependencies
+
+```bash
+npm install
+```
+
+### 3. Set Up the `.env` File
+
+Create a `.env` file as described above.
+
+### 4. Run the Bot
+
+```bash
+node bot.js
+```
+
+If successful, a QR code will appear in the terminal. Scan it using WhatsApp on the device you wish to use.
+
+---
+
+##  How to Use the Bot
+
+1. Run the bot using `node bot.js`
+2. Scan the QR code that appears with your WhatsApp
+3. The bot will start reading incoming messages from customers
+4. The bot responds based on the `FAQ_INFO` using Gemini AI
+
+---
+
+##  Key Features
+
+- Automated responses to customer questions
+- Natural and polite language
+- Random response delay to simulate human behavior
+- Directs customer to the owner if AI can't answer
+
+---
+
+##  AI Response System
+
+The bot reads incoming messages and combines them with a predefined **internal FAQ**. This is then sent to **Gemini AI** to generate a response. Customize the content according to your business needs.
+
+```js
+const fullPrompt = `
+You are a customer service representative for Warung ABC.
+
+Respond to every customer question politely and professionally...
+...
+`;
+```
+
+### Send to Gemini AI
+
+```js
+const result = await model.generateContent({
+  contents: [{ role: "user", parts: [{ text: fullPrompt }] }]
+});
+```
+
+### Reply to Customer
+
+The AI-generated reply is sent back to the customer with a 2–4 second randomized delay to feel more natural:
+
+```js
+setTimeout(() => {
+  msg.reply(replyText);
+}, delay);
+```
+
+---
+
+##  FAQ and Internal Information (Examples)
+
+The bot uses internal data such as:
+
+* Operating hours
+* Product list and pricing
+* Payment methods
+* Owner’s contact info
+
+All information is defined in a `FAQ_INFO` template to help the AI formulate responses. Please customize according to your own business.
+
+---
+
+##  Exit Bot
+
+To exit the bot gracefully, use Ctrl + C in terminal
+
+```js
+process.on('SIGINT', () => {
+  console.log('\n exit bot');
+  process.exit();
+});
+```
+
+---
+
+##  Notes
+
+* The bot **will not respond to its own messages** (`if (msg.fromMe) return;`)
+* If the AI is unable to respond, the customer will be referred to the owner
+
+---
+
+##  Security
+
+* Never share your Gemini API Key or `.env` file publicly.
+* Use a business or secondary WhatsApp number to avoid getting banned by META.
+
+---
+
+##  Status
+
+| Component        | Status         |
+| ---------------- | -------------- |
+| WhatsApp Client  | ✅ Active       |
+| Google Gemini    | ✅ Active       |
+| QR Auth          | ✅ One-time scan |
+| Response Delay   | ✅ 2–4 seconds  |
+
+---
