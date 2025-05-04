@@ -46,7 +46,7 @@ WHATSAPP_SESSION_NAME=my-wa-session
 ### 1. Clone or Download the Repository
 
 ```bash
-git clone https://github.com/bimosrtno/experimental-whatsapp-ai-bot
+git clone https://github.com/bimosrtno/ai-bot
 cd BE
 ```
 
