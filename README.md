@@ -134,6 +134,68 @@ All information is defined in a `FAQ_INFO` template to help the AI formulate res
 
 ---
 
+##  In-Memory Chat History (Context Memory)
+
+###  Purpose
+
+Temporarily store user chat history in RAM so the AI can understand the context when users say things like “how much is the total?”.
+
+- Reduce memory usage (since chat histories are stored in RAM).
+- Avoid overly long prompts being sent to the AI model.
+- Protect user privacy by not keeping conversations indefinitely.
+
+---
+
+###  Limitations
+
+- No permanent storage: All chat data is lost when the server is stopped or restarted.
+- Not suitable for use cases that require long-term history or multi-session continuity.
+- No per-user activity filter: All histories are cleared simultaneously, regardless of last activity.
+
+---
+
+### Potential Improvements
+
+- Store chat history in a file or database for persistence.
+- Add a timestamp to each message to allow selective cleanup based on idle time.
+- Use Redis or an LRU (Least Recently Used) cache for better memory control at scale.
+
+### Data Structure
+
+```js
+const chatHistories = {
+  "6281234567890@c.us": [
+    "indomie goreng 2",
+    "good day 1",
+    "how much is the total?"
+  ]
+};
+```
+
+### Mechanism
+
+- Each user gets a unique message history array
+- A maximum of 5 previous messages are used to construct the prompt
+- Nothing is stored in a database or on disk
+
+### Automatic Reset
+
+```js
+setInterval(() => {
+  for (const userId in chatHistories) {
+    chatHistories[userId] = [];
+  }
+}, 1000 * 60 * 10); // Every 10 minutes
+```
+
+### Pros & Cons
+
+✅ Fast and simple  
+❌ Volatile (data lost on restart)  
+❌ Not ideal for long conversations or persistent sessions
+
+---
+
 ##  Exit Bot
 
 To exit the bot gracefully, use Ctrl + C in terminal
