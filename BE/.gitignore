@@ -9,3 +9,7 @@ my-wa-session/
 
 # Ignore whatsapp-web.js cache
 .wwebjs_cache/
+
+# faq and prompt
+faq.json
+prompt.json

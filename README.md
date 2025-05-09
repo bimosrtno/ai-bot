@@ -37,6 +37,8 @@ Create a `.env` file in the root folder and add the following variables:
 ```env
 GEMINI_API_KEY=your_google_gemini_api_key
 WHATSAPP_SESSION_NAME=my-wa-session
+FAQ_INFO_PATH=./faq.json
+PROMPT_CS_PATH=./prompt.json
 ```
 
 ---
@@ -92,14 +94,71 @@ If successful, a QR code will appear in the terminal. Scan it using WhatsApp on 
 
 The bot reads incoming messages and combines them with a predefined **internal FAQ**. This is then sent to **Gemini AI** to generate a response. Customize the content according to your business needs.
 
-```js
-const fullPrompt = `
-You are a customer service representative for Warung ABC.
+## FAQ and Prompt Template
 
-Respond to every customer question politely and professionally...
-...
-`;
+This bot uses two essential configuration files to support its AI-based response system:
+
+### 1. faq.json 
+
+This file contains your business-related information, including product names, pricing, payment methods, and other frequently asked questions. The AI will use this data to generate more accurate and context-aware replies to customer messages.
+
+- example stucture: 
+
+```json
+{
+  "faq": [
+    "Opening hours: Monday–Saturday, 08:00–21:00 WIB",
+    "We accept payments: Cash, QRIS, and bank transfer",
+    "Indomie Goreng: Rp2500",
+    "Good Day: Rp2000",
+    "Mineral Water: Rp3000",
+    "Please contact the owner at 08123456789"
+  ]
+}
+``` 
+
+How to Use: 
+
+-Add your own business-specific details to the faq array.
+-Each array item represents a piece of knowledge that the AI can refer to.
+-Use a clear and consistent format, especially for product names and prices (e.g., Product Name: RpPrice), to ensure the AI can parse them correctly.
+
+### 2.prompt.json 
+
+This file contains the base prompt instruction used to guide the AI’s behavior. It defines the tone, rules for calculating totals, and how to respond when an answer isn’t available.
+
+-example stucture 
+
+```json 
+{
+  "prompt": "You are a customer service agent for Warung Abc. Your task is to respond to customer inquiries politely and professionally, and accurately calculate order totals based on the provided product list.\n\nImportant:\n- If the customer mentions quantities (e.g., \"indomie goreng 2\" or \"good day 1\"), oIf the requested information is not available, respond with: “Sorry, please contact the owner directly.” and provide their contact number."
+}
 ```
+
+How to use : 
+
+-Modify the "prompt" value to fit your business's customer service style.
+=You can also add custom rules, such as handling promotions, discounts, or specific behavioral flows.
+
+### Alternative: File-Based Configuration
+
+Instead of using .env variables, you can store faq.json and prompt.json as separate files and load them directly using fs.readFileSync():
+
+```js 
+const fs = require('fs');
+const faqData = JSON.parse(fs.readFileSync('./faq.json'));
+const promptData = JSON.parse(fs.readFileSync('./prompt.json'));
+
+const FAQ_INFO = faqData.faq.join('\n');
+const BASE_PROMPT = promptData.prompt;
+```
+
+Notes :
+
+-Always ensure your JSON is valid and properly formatted.
+-If your prompt includes line breaks, use \n within strings to avoid errors.
+-Keeping configuration in separate .json files can make your code cleaner and .env more manageable.
+
 
 ### Send to Gemini AI
 
@@ -188,17 +247,11 @@ setInterval(() => {
 }, 1000 * 60 * 10); // Every 10 minutes
 ```
 
-### Pros & Cons
 
-✅ Fast and simple  
-❌ Volatile (data lost on restart)  
-❌ Not ideal for long conversations or persistent sessions
-
----
 
 ##  Exit Bot
 
-To exit the bot gracefully, use Ctrl + C in terminal
+To exit the bot, use Ctrl + C in terminal
 
 ```js
 process.on('SIGINT', () => {
